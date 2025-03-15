@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secure Access</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+            background-size: 400% 400%;
+            animation: rainbowBG 8s infinite linear;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+        }
+
+        @keyframes rainbowBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        h1 {
+            font-size: 2rem;
+            background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: rainbowText 3s infinite linear;
+        }
+
+        @keyframes rainbowText {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        input[type="password"] {
+            width: 90%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: none;
+            font-size: 1rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 20px;
+            margin: 6px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: white;
+            font-weight: 600;
+            background: #007bff;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+
+        #main-content {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="password-container">
+        <h1>Enter Password</h1>
+        <input type="password" id="passwordInput" placeholder="Enter Password" />
+        <button onclick="checkPassword()">Submit</button>
+        <p id="error-message" style="color: red; display: none;">Incorrect Password!</p>
+    </div>
+
+    <div id="main-content">
+        <div class="container">
+            <h1>TWR 400 SUB DONE</h1>
+            <input type="number" id="signalCount" placeholder="Enter signals (max 40)" max="40" />
+            <button class="call-btn" onclick="generateSignals('CALL')">CALL Signals</button>
+            <button class="put-btn" onclick="generateSignals('PUT')">PUT Signals</button>
+            <button class="both-btn" onclick="generateSignals('BOTH')">BOTH Signals</button>
+            <button class="copy-btn" onclick="copySignals()">Copy Signals</button>
+
+            <div id="signalBox" class="signal-box"></div>
+
+            <a href="https://t.me/Nasim_Trader_01" target="_blank">
+                <button class="telegram-btn">Join Telegram</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const correctPassword = "TWR_400"; // এখানে পাসওয়ার্ড সেট করা হয়েছে
+
+        function checkPassword() {
+            const inputPassword = document.getElementById("passwordInput").value;
+            const errorMessage = document.getElementById("error-message");
+
+            if (inputPassword === correctPassword) {
+                document.getElementById("password-container").style.display = "none";
+                document.getElementById("main-content").style.display = "block";
+            } else {
+                errorMessage.style.display = "block";
+                setTimeout(() => { errorMessage.style.display = "none"; }, 2000);
+            }
+        }
+
+        const pairs = ["★USDBDT-OTC", "★USDARS-OTC", "★USDMXN-OTC", "★USDTRY-OTC", "★USDPHP-OTC", "★USDINR-OTC", "★USDDZD-OTC", "★USDPKR-OTC", "★USDIDR-OTC"];
+        let signals = [];
+
+        function generateSignal(pair, time, direction) {
+            return `${time} - ${pair} - ${direction}`;
+        }
+
+        function generateSignals(type) {
+            const count = parseInt(document.getElementById("signalCount").value);
+            if (isNaN(count) || count <= 0 || count > 40) {
+                alert("Please enter a valid number between 1 and 40.");
+                return;
+            }
+
+            signals = [];
+            const signalBox = document.getElementById("signalBox");
+            signalBox.innerHTML = '';
+
+            let currentTime = new Date();
+            for (let i = 0; i < count; i++) {
+                const pair = pairs[Math.floor(Math.random() * pairs.length)];
+                const direction = type === 'BOTH' ? (Math.random() < 0.5 ? 'CALL' : 'PUT') : type;
+                
+                currentTime.setMinutes(currentTime.getMinutes() + 5);
+                const time = currentTime.toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' });
+
+                const signal = generateSignal(pair, time, direction);
+                signals.push(signal);
+
+                const signalDiv = document.createElement('div');
+                signalDiv.classList.add("signal", direction.toLowerCase());
+                signalDiv.innerHTML = `<span>${signal}</span>`;
+                signalBox.appendChild(signalDiv);
+            }
+        }
+
+        function copySignals() {
+            if (signals.length === 0) {
+                alert("No signals to copy!");
+                return;
+            }
+            const signalText = signals.join('\n');
+            navigator.clipboard.writeText(signalText).then(() => {
+                alert("Signals copied to clipboard!");
+            });
+        }
+    </script>
+</body>
+</html>
